@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TikTok Account Region Fetcher</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+        "Helvetica Neue", sans-serif;
+      background: linear-gradient(to bottom, #f5f5f5, #e5e5e5);
+      color: #333;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .cards-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 1200px;
+      justify-content: center;
+    }
+
+    .card {
+      background: linear-gradient(to bottom right, #ffffff, #f5f5f5);
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 28rem;
+      overflow: hidden;
+      border: none;
+    }
+
+    .card-header {
+      padding: 1.5rem;
+    }
+
+    .card-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(to right, #ff4d4d, #f9cb28);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .card-header p {
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .card-content {
+      padding: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      transition: all 0.2s ease-in-out;
+      height: 3rem;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #ff4d4d;
+      box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.1);
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 0.875rem;
+      height: 3rem;
+      background: linear-gradient(to right, #ff4d4d, #ff7676);
+      color: white;
+      border: none;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button:hover {
+      background: linear-gradient(to right, #ff3333, #ff6666);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .shine-element {
+      position: absolute;
+      top: -100%;
+      left: -100%;
+      width: 50%;
+      height: 300%;
+      background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: rotate(30deg);
+      animation: shine 3s infinite;
+      pointer-events: none;
+    }
+
+    @keyframes shine {
+      0% {
+        left: -100%;
+        top: -100%;
+      }
+      20% {
+        left: 100%;
+        top: 100%;
+      }
+      100% {
+        left: 100%;
+        top: 100%;
+      }
+    }
+
+    .error-message {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background-color: #fff1f1;
+      border: 1px solid #ffcaca;
+      border-radius: 0.75rem;
+      color: #e53e3e;
+    }
+
+    .card-footer {
+      padding: 1.5rem;
+    }
+
+    .card-footer h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #555;
+    }
+
+    .result-box {
+      padding: 1rem;
+      background: linear-gradient(to right, #f9f9f9, #ffffff);
+      border-radius: 0.75rem;
+      border: 1px solid #eee;
+      overflow-x: auto;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: monospace;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #ff4d4d;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+
+    .spinner {
+      border: 3px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top: 3px solid #ff4d4d;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .footer-text {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 1rem;
+      max-width: 28rem;
+    }
+
+    @media (max-width: 768px) {
+      .cards-container {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="cards-container">
+      <!-- Username Card -->
+      <div class="card">
+        <div class="card-header">
+          <h1>TikTok Username Region Fetcher</h1>
+          <p>Enter a TikTok username to discover its region</p>
+        </div>
+        <div class="card-content">
+          <form id="username-form">
+            <div class="form-group">
+              <input 
+                type="text" 
+                id="username-input" 
+                placeholder="@username" 
+                required
+              >
+            </div>
+            <button type="submit" id="username-submit-button">
+              Fetch Region
+              <span class="shine-element"></span>
+            </button>
+            <div id="username-loading" class="loading hidden">
+              <div class="spinner"></div>
+              <span>Processing...</span>
+            </div>
+          </form>
+          <div id="username-error-message" class="error-message hidden"></div>
+        </div>
+        <div id="username-result-container" class="card-footer hidden">
+          <h3>Region:</h3>
+          <div class="result-box">
+            <pre id="username-result-content"></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email Card -->
+      <div class="card">
+        <div class="card-header">
+          <h1>TikTok Account Email Region Fetcher</h1>
+          <p>Enter a TikTok account email to discover its region</p>
+        </div>
+        <div class="card-content">
+          <form id="email-form">
+            <div class="form-group">
+              <input 
+                type="email" 
+                id="email-input" 
+                placeholder="tiktok@example.com" 
+                required
+              >
+            </div>
+            <button type="submit" id="submit-button">
+              Fetch Region
+              <span class="shine-element"></span>
+            </button>
+            <div id="loading" class="loading hidden">
+              <div class="spinner"></div>
+              <span>Processing...</span>
+            </div>
+          </form>
+          <div id="error-message" class="error-message hidden"></div>
+        </div>
+        <div id="result-container" class="card-footer hidden">
+          <h3>Region:</h3>
+          <div class="result-box">
+            <pre id="result-content"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="footer-text">This tool helps identify the region of TikTok accounts based on their @username or email address.
+    (Please note that if the result shows "Account not found", the username or email may not be linked to an account)</p>
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Email form handling
+      const emailForm = document.getElementById("email-form");
+      const emailInput = document.getElementById("email-input");
+      const submitButton = document.getElementById("submit-button");
+      const loading = document.getElementById("loading");
+      const errorMessage = document.getElementById("error-message");
+      const resultContainer = document.getElementById("result-container");
+      const resultContent = document.getElementById("result-content");
+
+      // Username form handling
+      const usernameForm = document.getElementById("username-form");
+      const usernameInput = document.getElementById("username-input");
+      const usernameSubmitButton = document.getElementById("username-submit-button");
+      const usernameLoading = document.getElementById("username-loading");
+      const usernameErrorMessage = document.getElementById("username-error-message");
+      const usernameResultContainer = document.getElementById("username-result-container");
+      const usernameResultContent = document.getElementById("username-result-content");
+
+      // Country names mapping
+      const countryNames = {
+        "US": "United States",
+        "GB": "United Kingdom",
+        "CA": "Canada",
+        "AU": "Australia",
+        "DE": "Germany",
+        "FR": "France",
+        "IT": "Italy",
+        "ES": "Spain",
+        "JP": "Japan",
+        "CN": "China",
+        "RU": "Russia",
+        "BR": "Brazil",
+        "IN": "India",
+        "MX": "Mexico",
+        "KR": "South Korea",
+        "CH": "Switzerland",
+        "BE": "Belgium",
+        // Add more as needed
+      };
+
+      // Email form submission
+      emailForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const email = emailInput.value.trim();
+
+        if (!email || !email.includes("@")) {
+          showError(errorMessage, "Please enter a valid email address");
+          return;
+        }
+
+        // Show loading state
+        submitButton.style.display = "none";
+        loading.classList.remove("hidden");
+        errorMessage.classList.add("hidden");
+        resultContainer.classList.add("hidden");
+
+        try {
+          // Add a cache-busting parameter
+          const timestamp = new Date().getTime();
+          // Call the Cloudflare Worker endpoint directly
+          const response = await fetch(`/api/process?email=${encodeURIComponent(email)}&_=${timestamp}`);
+
+          if (!response.ok) {
+            const contentType = response.headers.get("content-type") || "";
+            
+            if (contentType.includes("application/json")) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || `Error: ${response.status} ${response.statusText}`);
+            } else {
+              throw new Error(`Error: ${response.status} ${response.statusText}`);
+            }
+          }
+
+          // Get the text from the response
+          const data = await response.text();
+          
+          // Simple check to avoid displaying HTML
+          if (data.trim().startsWith("<!DOCTYPE html>") || data.trim().startsWith("<html")) {
+            throw new Error("Received HTML instead of expected data. Please try again later.");
+          }
+          
+          // Format the result to be more user-friendly
+          let formattedResult = data.trim();
+
+          // Special handling for "SG" response - make this check more explicit
+          if (formattedResult === "SG") {
+            console.log("Static HTML converting SG to Account not found");
+            formattedResult = "Account not found";
+          }
+          // If it's a country code, add some context
+          else if (formattedResult.length === 2 && /^[A-Z]{2}$/.test(formattedResult)) {
+            const countryName = countryNames[formattedResult] || "Unknown Country";
+            formattedResult = `${formattedResult} (${countryName})`;
+          }
+
+          // Display the result
+          resultContent.textContent = formattedResult;
+          resultContainer.classList.remove("hidden");
+        } catch (error) {
+          showError(errorMessage, error.message || "An error occurred while processing your request");
+        } finally {
+          // Hide loading state
+          submitButton.style.display = "block";
+          loading.classList.add("hidden");
+        }
+      });
+
+      // Username form submission
+      usernameForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const username = usernameInput.value.trim();
+
+        if (!username) {
+          showError(usernameErrorMessage, "Please enter a valid username");
+          return;
+        }
+
+        // Show loading state
+        usernameSubmitButton.style.display = "none";
+        usernameLoading.classList.remove("hidden");
+        usernameErrorMessage.classList.add("hidden");
+        usernameResultContainer.classList.add("hidden");
+
+        try {
+          // Add a cache-busting parameter
+          const timestamp = new Date().getTime();
+          // Send the username directly - the API will handle it
+          const response = await fetch(`/api/process?email=${encodeURIComponent(username)}&_=${timestamp}`);
+
+          if (!response.ok) {
+            const contentType = response.headers.get("content-type") || "";
+            
+            if (contentType.includes("application/json")) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || `Error: ${response.status} ${response.statusText}`);
+            } else {
+              throw new Error(`Error: ${response.status} ${response.statusText}`);
+            }
+          }
+
+          // Get the text from the response
+          const data = await response.text();
+          
+          // Simple check to avoid displaying HTML
+          if (data.trim().startsWith("<!DOCTYPE html>") || data.trim().startsWith("<html")) {
+            throw new Error("Received HTML instead of expected data. Please try again later.");
+          }
+          
+          // Format the result to be more user-friendly
+          let formattedResult = data.trim();
+
+          // Special handling for "SG" response - make this check more explicit
+          if (formattedResult === "SG") {
+            console.log("Static HTML converting SG to Account not found");
+            formattedResult = "Account not found";
+          }
+          // If it's a country code, add some context
+          else if (formattedResult.length === 2 && /^[A-Z]{2}$/.test(formattedResult)) {
+            const countryName = countryNames[formattedResult] || "Unknown Country";
+            formattedResult = `${formattedResult} (${countryName})`;
+          }
+
+          // Display the result
+          usernameResultContent.textContent = formattedResult;
+          usernameResultContainer.classList.remove("hidden");
+        } catch (error) {
+          showError(usernameErrorMessage, error.message || "An error occurred while processing your request");
+        } finally {
+          // Hide loading state
+          usernameSubmitButton.style.display = "block";
+          usernameLoading.classList.add("hidden");
+        }
+      });
+
+      function showError(element, message) {
+        element.textContent = message;
+        element.classList.remove("hidden");
+      }
+    });
+  </script>
+</body>
+</html>
+
